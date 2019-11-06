@@ -20,7 +20,12 @@ Add this line :
 ```csharp
 @addTagHelper *, FriendPlace
 ```
-
+#### _Layout.cshtml
+```html
+<head>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=<YOUR_API_KEY>&libraries=places&language=vi"></script>
+</head>
+```
 #### using in cshtml
 ```html
 <googleplace custom-css=".google-places-autocomplete { width:50%; margin:0 auto;  }" on-item-selected="SelectedIndexChange" name="PlaceName"  />
