@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <PackageId>FriendPlace</PackageId>
+    <Title>Wrapper TagHelper for Google Place AutoComplete</Title>
+    <Version>1.0.0</Version>
+    <Authors>Le Hoai</Authors>
+    <Company>FriendsWork</Company>
+    <IsPackable>true</IsPackable>
+    <AssemblyName>FriendPlace</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    <EmbeddedResource Include="src\html\google-place.html">
+      <LogicalName>html.googleplace</LogicalName>
+     </EmbeddedResource>
+  </ItemGroup>
+</Project>

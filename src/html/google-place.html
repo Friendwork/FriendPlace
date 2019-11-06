@@ -1,0 +1,163 @@
+<style type="text/css">
+    .google-places-autocomplete {
+        width: 100%;
+        position: relative;
+    }
+    .google-places-autocomplete-input {
+        width: 100%;
+        padding: 10px;
+        border:1px solid;
+        border-color: #6c757d;
+    }
+    .google-places-autocomplete-suggestions-container {
+        background: white;
+        color: black;
+        position: absolute;
+        width: 100%;
+        z-index: 2;
+        border:1px solid;
+        border-color: #6c757d;
+        border-top:none;
+    }
+    .google-places-autocomplete-suggestion {
+        font-size: 1rem;
+        text-align: left;
+        padding: 10px;
+        cursor: pointer;
+    }
+    .google-places-autocomplete-suggestion:hover {
+        background: #e0e3e7;
+    }
+    .google-places-autocomplete-suggestion--active {
+        background: #e0e3e7;
+    }
+</style>
+<div class="google-places-autocomplete">
+    <input type="text" oninput="gpOnChange(this)" name="${name}" onkeydown="handleKeyPress(event)" id="google-places-autocomplete-input" class="google-places-autocomplete-input" />
+    <div id="google-places-autocomplete-suggestions-container" class="google-places-autocomplete-suggestions-container" style="display: none;">
+    </div>
+    <input type="hidden" id="placeId" name="${name}.PlaceId" />
+</div>
+
+<script>
+
+    /**
+     * Selected place object
+     **/
+    document.gpSelectedPlace = {};
+
+    /**
+     * Suggestion list container
+     **/
+    document.gpContainer = document.getElementById("google-places-autocomplete-suggestions-container");
+
+    /**
+     * Google Place Service
+     **/
+    document.gpPlaceService = new window.google.maps.places.AutocompleteService();
+
+    document.activeSuggestionIndex = -1;
+
+    /**
+     * Make delay when request to place api
+     **/
+    var debounce = function debounce(callback, timeout) {
+        var d, e;
+        return function () {
+            function helper() {
+            d = null, e = callback.apply(thisRef, argumentsRef);
+            }
+
+            var thisRef = this,
+                argumentsRef = arguments;
+            return clearTimeout(d), d = setTimeout(helper, timeout), !d && (e = callback.apply(thisRef, argumentsRef)), e;
+        };
+    };
+
+    /**
+     * Get suggestion
+     **/
+    var getSuggestion = debounce(function(value) {
+        document.gpPlaceService.getPlacePredictions({
+            input: value
+        }, function(data) {
+            document.activeSuggestionIndex = -1;
+            document.gpPlaceList = data;
+            document.gpContainer.innerHTML = "";
+            var html = "";
+            if(data != null) {
+                for(var i = 0; i < data.length; i++) {
+                    html += `<div onclick="doSelectPlace(` + i +`)" class="google-places-autocomplete-suggestion">` + data[i].description +`</div>`;
+                }
+                document.gpContainer.innerHTML = html;
+                document.gpContainer.style.display = "block";
+            }
+        })
+    },300);
+
+    /**
+     * Text change
+     **/
+    function gpOnChange(e) {
+        if(e.value != "" && e.value != null) {
+            getSuggestion(e.value);
+        }
+    }
+
+    /**
+     * On item click
+     **/
+    function doSelectPlace(index) {
+        document.gpSelectedPlace = document.gpPlaceList[index];
+        document.getElementById("google-places-autocomplete-input").value = document.gpSelectedPlace.description;
+        document.gpContainer.style.display = "none";
+        document.getElementById("placeId").value = document.gpSelectedPlace.placeId;
+        // callback
+        var result = eval(${onItemSelected});
+        if(typeof result === "function") {
+            result(index, document.gpSelectedPlace);
+        }
+    }
+
+    function handleKeyPress(event) {
+        var key = event.key;
+        switch(key) {
+            case "Escape":
+                document.gpContainer.style.display = "none";
+                break;
+            case "ArrowDown":
+                if(document.activeSuggestionIndex < document.gpPlaceList.length -1) {
+                    document.activeSuggestionIndex++;
+                }
+                fillActiveSuggestion();
+                break;
+            case "ArrowUp":
+                if(document.activeSuggestionIndex > 0) {
+                    document.activeSuggestionIndex--;
+                }
+                fillActiveSuggestion();
+                break;
+            case "Enter":
+                if(document.activeSuggestionIndex != -1) {
+                    doSelectPlace(document.activeSuggestionIndex);
+                }
+                break;
+        }
+    }
+
+    function fillActiveSuggestion() {
+        var suggestions = document.getElementsByClassName("google-places-autocomplete-suggestion");
+        for(var i = 0; i < suggestions.length; i++) {
+            suggestions[i].classList.remove("google-places-autocomplete-suggestion--active");
+        }
+        suggestions[document.activeSuggestionIndex].classList.add("google-places-autocomplete-suggestion--active");
+    }
+
+    document.body.addEventListener("click", function() {
+        document.gpContainer.style.display = "none";
+    })
+
+</script>
+<style type="text/css">
+    ${customCss}
+</style>
