@@ -111,7 +111,7 @@
         document.gpSelectedPlace = document.gpPlaceList[index];
         document.getElementById("google-places-autocomplete-input").value = document.gpSelectedPlace.description;
         document.gpContainer.style.display = "none";
-        document.getElementById("placeId").value = document.gpSelectedPlace.placeId;
+        document.getElementById("placeId").value = document.gpSelectedPlace.place_id;
         // callback
         var result = eval(${onItemSelected});
         if(typeof result === "function") {
